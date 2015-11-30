@@ -13,7 +13,7 @@ postsUrl = "https://interestmatcher.firebaseio.com/posts/chill.json"
 
 def get_chat_content():
 	chats = []
-	r1 = requests.get(chatsUrl + "?print=pretty" + "?auth=" + AUTHSECRET)
+	r1 = requests.get(chatsUrl + "?print=pretty" + "&auth=" + AUTHSECRET)
 	chatData = json.loads(r1.text) # JSON of all the chats
 	for chatContent in chatData.values():
 		converted = ""
@@ -23,7 +23,7 @@ def get_chat_content():
 
 def get_post_content():
 	posts = []
-	r2 = requests.get(postsUrl + "?print=pretty" + "?auth=" + AUTHSECRET)
+	r2 = requests.get(postsUrl + "?print=pretty" + "&auth=" + AUTHSECRET)
 	postData = json.loads(r2.text) # JSON of all the posts
 	for postContent in postData.values():
 		converted = ""
