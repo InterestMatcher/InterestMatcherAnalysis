@@ -44,7 +44,10 @@ def keywords_and_sentiment(contentList):
 			for keyword in response['keywords']:
 				if 'score' in keyword['sentiment']:
 					sentiment += float(keyword['sentiment']['score'])
+				if float(keyword['relevance']) > .97:
+					relevanceList.append(keyword['text'])
 				counter += 1
+	print relevanceList
 	return float(sentiment/counter)
 
 
