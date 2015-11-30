@@ -26,36 +26,24 @@ def get_post_content():
 		posts.append(postContent["content"])
 	return posts
 
-def convert_to_pure_text(content):
-	# Takes a list (posts or chats) and removes non-english things for alchemy to work with
-	#content = [ "u\'Anyone wanna Netflix and Chill?\'", "u\'broken af\'"]
-	formatted = str()
-	for post in content:
-		#post = str(post)
-		post = ''.join(chr(ord(c)) for c in post)
-		formatted += post#[2:len(post)-1] # Firebase gives posts in format:  u'Post Content Here!'
-	print formatted
-	return formatted
-
-def keywords_and_sentiment(text):
+def keywords_and_sentiment(contentList):
 	# Accepts a string of posts (or chats), and returns a dictionary with keywords and sentiment
 	alchemyapi = AlchemyAPI()
-	response = alchemyapi.keywords('text', text, {'sentiment': 1})
-	output = str()
+	relevanceList = []
+	sentiment = 0
+	counter = 0
 
-	if response['status'] == 'OK':
-		print response['keywords']
-		for keyword in response['keywords']:
-			output += 'text: ' + keyword['text'].encode('utf-8') + " \n"
-			output += 'relevance: ' + keyword['relevance'] + " \n"
-			output += 'sentiment: ' + keyword['sentiment']['type'] + " \n"
-			# This throws an error for some reason.
-	        #if 'score' in keyword['sentiment']:
-	        #    output += 'sentiment score: ' + keyword['sentiment']['score']
-	else:
-		return 'Error! ' + response['statusInfo']
+	for post_message in contentList:
+		response = alchemyapi.keywords('text', post_message, {'sentiment': 1})
+		if response['status'] == 'OK':
+			for keyword in response['keywords']:
+				print keyword
+				sentiment += float(keyword['sentiment']['score'])
+				counter += 1
+		else:
+			return 'Error: ' + response['statusInfo']
 
-	return output
+	return float(sentiment/counter)
 
 
 # Play around with this in testing - only runs in development mode
@@ -64,4 +52,4 @@ if DEV_MODE:
 	print '\n'
 	pprint.pprint(get_post_content())
 	print '\n'
-	print keywords_and_sentiment(convert_to_pure_text(get_post_content()))
+	print keywords_and_sentiment(get_post_content())
