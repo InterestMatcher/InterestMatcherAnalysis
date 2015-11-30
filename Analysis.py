@@ -1,6 +1,7 @@
 import requests
 import json
 import pprint
+import unicodedata
 from firebaseSecret import AUTHSECRET
 from alchemyapi import AlchemyAPI
 
@@ -15,7 +16,9 @@ def get_chat_content():
 	r1 = requests.get(chatsUrl + "?print=pretty" + "?auth=" + AUTHSECRET)
 	chatData = json.loads(r1.text) # JSON of all the chats
 	for chatContent in chatData.values():
-		chats.append(chatContent["content"])
+		converted = ""
+		converted = unicodedata.normalize('NFKD', chatContent["content"]).encode('ascii', 'ignore')
+		chats.append(converted)
 	return chats
 
 def get_post_content():
@@ -23,7 +26,9 @@ def get_post_content():
 	r2 = requests.get(postsUrl + "?print=pretty" + "?auth=" + AUTHSECRET)
 	postData = json.loads(r2.text) # JSON of all the posts
 	for postContent in postData.values():
-		posts.append(postContent["content"])
+		converted = ""
+		converted = unicodedata.normalize('NFKD', postContent["content"]).encode('ascii', 'ignore')
+		posts.append(converted)
 	return posts
 
 def keywords_and_sentiment(contentList):
@@ -37,12 +42,9 @@ def keywords_and_sentiment(contentList):
 		response = alchemyapi.keywords('text', post_message, {'sentiment': 1})
 		if response['status'] == 'OK':
 			for keyword in response['keywords']:
-				print keyword
-				sentiment += float(keyword['sentiment']['score'])
+				if 'score' in keyword['sentiment']:
+					sentiment += float(keyword['sentiment']['score'])
 				counter += 1
-		else:
-			return 'Error: ' + response['statusInfo']
-
 	return float(sentiment/counter)
 
 
@@ -53,3 +55,5 @@ if DEV_MODE:
 	pprint.pprint(get_post_content())
 	print '\n'
 	print keywords_and_sentiment(get_post_content())
+
+
