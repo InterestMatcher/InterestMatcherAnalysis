@@ -1,3 +1,4 @@
 firebaseSecret.py
 *.pyc
 api_key.txt
+.DS_Store
